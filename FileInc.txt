@@ -123,7 +123,7 @@ Expect wrapper:
 |
 |--- with this wrapper we can run commands up front through url streams
 |
-|--- this is an external wrapper and needs to be insatlled on the backend
+|--- this is an external wrapper and needs to be installed on the backend
 |
 |--- can use the 'expect://' scheme and pass commands
 
