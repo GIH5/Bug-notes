@@ -1,0 +1,18 @@
+|---Use-After-Free---|
+|
+|---Memory needs to be distributed to things like varibles, functions and other things and needs to deallocated once not needed
+|
+|---Stack memory --> static allocation
+|
+|---Heap memory --> dynamic allocation / developer doing it manually
+|
+|---Functions ---|
+.malloc          |
+.free            |        <-- memory allocations and deallocations
+.new             |
+.delete          |
+|----------------|
+|
+|---Use after free is a bug where the binary continues to use memory after its been freed or deallocated and can lead into eccentric behavior, vulnerbilties or crash the program
+|
+|
