@@ -2,7 +2,7 @@ File inclusions
 
 Enum:
 |
-|--- file inclusions happens when no defence mechs like sanitization or WAF is not present
+|--- file inclusions happens when theres no defence mechanisms like sanitization or WAF present
 |
 |--- often these vulns are found in template engines
 |
@@ -73,7 +73,7 @@ Input filters:
 |
 |--- wrappers allow us to access I/O streams, file descriptors, memory streams
 |
-|--- php filters are a type of wrapper where input can be filterd
+|--- php filters are a type of wrapper where input can be filtered
 |
 |--- use the 'php://' to use the wrapper and 'php://filter' to access the filter wrapper
 |
